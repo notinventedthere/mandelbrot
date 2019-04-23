@@ -1,28 +1,27 @@
-require 'oily_png'
+require 'rmagick'
+include Magick
 require_relative 'mandelbrot'
 
-$X, $Y = 800, 800
+$WIDTH, $HEIGHT = 800, 800
 
-$png = ChunkyPNG::Image.new($X, $Y, ChunkyPNG::Color::WHITE)
+$image = Image.new($WIDTH, $HEIGHT) { self.background_color = "red" }
 
-$colors = (0..19).each do |i|
-  ChunkyPNG::Color.from_hsv(i*3, 1, 1)
-end.to_a
-$mandelbrot = Mandelbrot.new(:black, $colors)
+$colors = (0..19).to_a.map { |i| "hsl(#{i*3}, 100, 50)" }
+$mandelbrot = Mandelbrot.new("black", $colors)
 
 # Use a block to determine color of each pixel
 def plot
-  verts = (0..$X-1).to_a.product((0..$Y-1).to_a)
-  verts.each { |x, y| $png.set_pixel(x, y, yield(x, y)) }
+  verts = (0..$WIDTH-1).to_a.product((0..$HEIGHT-1).to_a)
+  verts.each { |x, y| $image.pixel_color(x, y, yield(x, y)) }
 end
 
 def mandelbrot_norm(x, y)
-  x = (x - $X / 2.0) * 4.0 / $X
-  y = (y - $Y / 2.0) * 4.0 / $Y
-  ChunkyPNG::Color($mandelbrot.color_at(x,y))
+  x = (x - $WIDTH / 2.0) * 4.0 / $WIDTH
+  y = (y - $HEIGHT / 2.0) * 4.0 / $HEIGHT
+  $mandelbrot.color_at(x,y)
 end
 
 def render
   plot { |x,y| mandelbrot_norm(x, y) }
-  $png.save('mandelbrot.png')
+  $image.display
 end
