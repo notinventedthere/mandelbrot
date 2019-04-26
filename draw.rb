@@ -4,8 +4,6 @@ require_relative 'mandelbrot'
 
 $WIDTH, $HEIGHT = 800, 800
 $MAX = 50.0
-$COLORS = (0..$MAX).to_a.reverse.map { |i| "hsl(#{235 / $MAX * i}, 200, 100)" }
-$MANDELBROT = Mandelbrot.new("black", $COLORS)
 
 # Use a block to determine color of each pixel
 def generate(width, height)
@@ -29,7 +27,7 @@ end
 
 def render
   $image = generate($WIDTH, $HEIGHT) do |x,y|
-    $MANDELBROT.color_at(*norm(x, y), $MAX)
+    Mandelbrot.color_at(*norm(x, y), $MAX)
   end
   $image.display
 end

@@ -1,13 +1,13 @@
-class Mandelbrot
-  attr_reader :inner_color
-  attr_reader :colors
-  def initialize(inner_color, colors)
-    @inner_color = inner_color
-    @colors = colors
+module Mandelbrot
+  def self.colors1(v, limit)
+    if v > limit
+      "black"
+    else
+      "hsl(#{239-(200-v*(200/limit))}, 200, #{100-v*(100/limit)}"
+    end
   end
 
-
-  def color_at(x, y, max)
+  def self.color_at(x, y, max)
     c = Complex(x, y)
     z = 0
     pow = 1.0
@@ -15,15 +15,11 @@ class Mandelbrot
       r2 = z.real ** 2 + z.imaginary ** 2
       if r2 > 1000000
         v = Math.log(r2) / pow
-        if v > 0.5
-          return "black"
-        else
-          return "hsl(#{239*v*2}, 200, #{(0.5-v)*400})"
-        end
+        return colors1(v, 0.3)
       end
       z = z ** 2 + c
       pow = pow * 2
     end
-    inner_color
+    "black"
   end
 end
