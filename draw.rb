@@ -26,5 +26,3 @@ def render
   plot { |x,y| $mandelbrot.color_at(*norm(x, y), $MAX) }
   $image.display
 end
-
-render

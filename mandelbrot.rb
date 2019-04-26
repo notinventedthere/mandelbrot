@@ -8,7 +8,7 @@ class Mandelbrot
 
 
   def color_at(x, y, max)
-    iterations = self.orbit(Complex(x, y)).take(max)
+    iterations = self.orbit(Complex(x, y)).lazy.take(max)
     ind = iterations.find_index { |i| i.real ** 2 + i.imaginary ** 2 > 4 }
     ind ? colors[ind] : inner_color
   end
