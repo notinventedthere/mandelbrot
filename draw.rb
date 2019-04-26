@@ -4,15 +4,14 @@ require_relative 'mandelbrot'
 
 $WIDTH, $HEIGHT = 800, 800
 $MAX = 50.0
+$COLORS = (0..$MAX).to_a.reverse.map { |i| "hsl(#{235 / $MAX * i}, 200, 100)" }
+$MANDELBROT = Mandelbrot.new("black", $COLORS)
 
 $image = Image.new($WIDTH, $HEIGHT) { self.background_color = "red" }
 
-$colors = (0..$MAX).to_a.reverse.map { |i| "hsl(#{235 / $MAX * i}, 200, 100)" }
-$mandelbrot = Mandelbrot.new("black", $colors)
-
 # Use a block to determine color of each pixel
-def plot
-  verts = (0..$WIDTH-1).to_a.product((0..$HEIGHT-1).to_a)
+def plot(image)
+  verts = (0..image.columns-1).to_a.product((0..image.rows-1).to_a)
   verts.each { |x, y| $image.pixel_color(x, y, yield(x, y)) }
 end
 
@@ -23,6 +22,6 @@ def norm(x, y)
 end
 
 def render
-  plot { |x,y| $mandelbrot.color_at(*norm(x, y), $MAX) }
+  plot($image) { |x,y| $MANDELBROT.color_at(*norm(x, y), $MAX) }
   $image.display
 end
