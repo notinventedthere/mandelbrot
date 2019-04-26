@@ -16,7 +16,7 @@ end
 
 # Draw
 Benchmark.bm(1) do |x|
-  x.report('draw without mandel 1:') { plot($image) { 'black' } }
-  x.report('draw without mandel 2:') { plot($image) { "hsl(#{235 / $MAX }, 200, 100)" } }
-  x.report('draw with mandel:') { plot($image) { |x,y| $MANDELBROT.color_at(*norm(x, y), $MAX) } }
+  x.report('draw without mandel 1:') { generate($WIDTH, $HEIGHT) { 'black' } }
+  x.report('draw without mandel 2:') { generate($WIDTH, $HEIGHT) { "hsl(#{235 / $MAX }, 200, 100)" } }
+  x.report('draw with mandel:') { generate($WIDTH, $HEIGHT) { |x,y| $MANDELBROT.color_at(*norm(x, y), $MAX) } }
 end

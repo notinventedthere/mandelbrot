@@ -7,12 +7,18 @@ $MAX = 50.0
 $COLORS = (0..$MAX).to_a.reverse.map { |i| "hsl(#{235 / $MAX * i}, 200, 100)" }
 $MANDELBROT = Mandelbrot.new("black", $COLORS)
 
-$image = Image.new($WIDTH, $HEIGHT) { self.background_color = "red" }
-
 # Use a block to determine color of each pixel
-def plot(image)
-  verts = (0..image.columns-1).to_a.product((0..image.rows-1).to_a)
-  verts.each { |x, y| $image.pixel_color(x, y, yield(x, y)) }
+def generate(width, height)
+  arr = []
+  (0..height-1).each do |y|
+    (0..width-1).each do |x|
+      p = Pixel.from_color(yield(x, y))
+      arr.push(p.red)
+      arr.push(p.green)
+      arr.push(p.blue)
+    end
+  end
+  Image.constitute(width, height, "RGB", arr)
 end
 
 def norm(x, y)
@@ -22,6 +28,8 @@ def norm(x, y)
 end
 
 def render
-  plot($image) { |x,y| $MANDELBROT.color_at(*norm(x, y), $MAX) }
+  $image = generate($WIDTH, $HEIGHT) do |x,y|
+    $MANDELBROT.color_at(*norm(x, y), $MAX)
+  end
   $image.display
 end
