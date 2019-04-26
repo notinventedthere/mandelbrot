@@ -9,10 +9,20 @@ class Mandelbrot
 
   def color_at(x, y, max)
     c = Complex(x, y)
-    previous = 0
+    z = 0
+    pow = 1.0
     (0..max-1).each do |i|
-      previous = previous ** 2 + c
-      return colors[i] if previous.real ** 2 + previous.imaginary ** 2 > 4
+      r2 = z.real ** 2 + z.imaginary ** 2
+      if r2 > 1000000
+        v = Math.log(r2) / pow
+        if v > 0.5
+          return "black"
+        else
+          return "hsl(#{239*v*2}, 200, #{(0.5-v)*400})"
+        end
+      end
+      z = z ** 2 + c
+      pow = pow * 2
     end
     inner_color
   end
