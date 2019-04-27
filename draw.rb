@@ -11,17 +11,17 @@ class Plot
   end
 
   # Use a block to determine color of each pixel
-  def generate(width, height)
+  def generate
     arr = []
-    (0..height-1).each do |y|
-      (0..width-1).each do |x|
+    (0..@height-1).each do |y|
+      (0..@width-1).each do |x|
         p = Pixel.from_color(yield(x, y))
         arr.push(p.red)
         arr.push(p.green)
         arr.push(p.blue)
       end
     end
-    Image.constitute(width, height, "RGB", arr)
+    Image.constitute(@width, @height, "RGB", arr)
   end
 
   def norm(x, y)
@@ -31,7 +31,7 @@ class Plot
   end
 
   def render(max)
-    @image = generate(@width, @height) do |x,y|
+    @image = generate do |x,y|
       Mandelbrot.color_at(*norm(x, y), max)
     end
     @image.display
