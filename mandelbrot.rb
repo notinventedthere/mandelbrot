@@ -1,9 +1,11 @@
 module Mandelbrot
   def self.colors1(v, limit)
-    if v > limit
+    if v > limit # not close enough to M
       "black"
+    elsif v > 0.005
+      "hsl(#{239-50*Math.sin(((200-v*(200/limit))+50)*v)}, 200, #{80-v*(80/limit)}"
     else
-      "hsl(#{239-(200-v*(200/limit))}, 200, #{100-v*(100/limit)}"
+      "hsl(#{189-50*Math.sin(500*v)}, 200, #{80-v*(80/limit)}"
     end
   end
 

@@ -2,8 +2,8 @@ require 'rmagick'
 include Magick
 require_relative 'mandelbrot'
 
-$WIDTH, $HEIGHT = 800, 800
-$MAX = 50.0
+$WIDTH, $HEIGHT = 3200, 3200
+$MAX = 200.0
 
 # Use a block to determine color of each pixel
 def generate(width, height)
