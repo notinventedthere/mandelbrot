@@ -2,9 +2,6 @@ require 'rmagick'
 include Magick
 require_relative 'mandelbrot'
 
-$WIDTH, $HEIGHT = 3200, 3200
-$MAX = 200.0
-
 # Use a block to determine color of each pixel
 def generate(width, height)
   arr = []
@@ -19,15 +16,17 @@ def generate(width, height)
   Image.constitute(width, height, "RGB", arr)
 end
 
-def norm(x, y)
-  x = (x - $WIDTH / 2.0) * 4.0 / $WIDTH
-  y = (y - $HEIGHT / 2.0) * 4.0 / $HEIGHT
+def norm(x, y, width, height)
+  x = (x - width / 2.0) * 4.0 / width
+  y = (y - height / 2.0) * 4.0 / height
   return x, y
 end
 
-def render
-  $image = generate($WIDTH, $HEIGHT) do |x,y|
-    Mandelbrot.color_at(*norm(x, y), $MAX)
+def render(width, height, max)
+  $image = generate(width, height) do |x,y|
+    Mandelbrot.color_at(*norm(x, y), max)
   end
   $image.display
 end
+
+render(*ARGV) unless ARGV.empty?
