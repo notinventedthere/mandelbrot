@@ -21,7 +21,7 @@ class Plot
         arr.push(p.blue)
       end
     end
-    Image.constitute(@width, @height, "RGB", arr)
+    arr
   end
 
   def norm(x, y)
@@ -30,12 +30,15 @@ class Plot
     return x, y
   end
 
-  def render(max)
-    @image = generate do |x,y|
-      Mandelbrot.color_at(*norm(x, y), max)
-    end
-    @image.display
+  def render(arr)
+    @image = Image.constitute(@width, @height, "RGB", arr)
   end
 end
 
-Plot.new(ARGV[0].to_i, ARGV[1].to_i).render(ARGV[2].to_f) unless ARGV.empty?
+unless ARGV.empty?
+  p = Plot.new(ARGV[0].to_i, ARGV[1].to_i)
+  p.render(p.generate do |x,y|
+    Mandelbrot.color_at(*p.norm(x, y), ARGV[2].to_f)
+  end)
+  p.image.display
+end
