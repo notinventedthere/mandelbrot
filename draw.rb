@@ -34,10 +34,16 @@ def plot_mandelbrot(width, height, iterations)
   return p
 end
 
-if ARGV.length == 3
+if ARGV.length >= 3
   width, height = ARGV[0].to_i, ARGV[1].to_i, 
   iterations = ARGV[2].to_f
-  plot_mandelbrot(width, height, iterations).image.display
+  p = plot_mandelbrot(width, height, iterations)
+  if ARGV[3]
+    p.image.write(ARGV[3])
+  else
+    p.image.display
+  end
 else
-  puts "Usage: draw.rb width height iterations"
+  puts "Usage: draw.rb width height iterations [filename]"
+  puts "If no filename provided will display in imagemagick window."
 end
