@@ -5,40 +5,39 @@ require_relative 'mandelbrot'
 class Plot
   attr_reader :image
 
-  def initialize(width, height)
-    @width = width
-    @height = height
+  def initialize(color_method)
+    @color_method = color_method
   end
 
-  # Use a block to determine color of each pixel
-  def generate
-    arr = []
-    (0..@height-1).each do |y|
-      (0..@width-1).each do |x|
-        p = Pixel.from_color(yield(x, y))
-        arr.push(p.red)
-        arr.push(p.green)
-        arr.push(p.blue)
+  def generate(width, height)
+    pixels = []
+    (0..height-1).each do |y|
+      (0..width-1).each do |x|
+        p = Pixel.from_color(@color_method.(x, y))
+        pixels.push(p.red)
+        pixels.push(p.green)
+        pixels.push(p.blue)
       end
     end
-    arr
-  end
 
-  def norm(x, y)
-    x = (x - @width / 2.0) * 4.0 / @width
-    y = (y - @height / 2.0) * 4.0 / @height
-    return x, y
-  end
-
-  def render(arr)
-    @image = Image.constitute(@width, @height, "RGB", arr)
+    @image = Image.constitute(width, height, "RGB", pixels)
   end
 end
 
-unless ARGV.empty?
-  p = Plot.new(ARGV[0].to_i, ARGV[1].to_i)
-  p.render(p.generate do |x,y|
-    Mandelbrot.color_at(*p.norm(x, y), ARGV[2].to_f)
+def plot_mandelbrot(width, height, iterations)
+  p = Plot.new(lambda do |x,y|
+    Mandelbrot.color_at(
+      *Mandelbrot.normalize_point(x, y, width, height), iterations
+    )
   end)
-  p.image.display
+  p.generate(width, height)
+  return p
+end
+
+if ARGV.length == 3
+  width, height = ARGV[0].to_i, ARGV[1].to_i, 
+  iterations = ARGV[2].to_f
+  plot_mandelbrot(width, height, iterations).image.display
+else
+  puts "Usage: draw.rb width height iterations"
 end

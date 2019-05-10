@@ -24,4 +24,10 @@ module Mandelbrot
     end
     "black"
   end
+
+  def self.normalize_point(x, y, width, height)
+    x = (x - width / 1.6) * 4.0 / width
+    y = (y - height / 2.0) * 4.0 / height
+    return x, y
+  end
 end
