@@ -9,4 +9,5 @@ Example above rendered with `ruby draw.rb 800 800 50`
 Install rmagick with `gem install rmagick`. Requires imagemagick to be installed.
 
 ## Usage
-`ruby draw.rb width height iterations`
+`ruby draw.rb width height iterations [filename]`
+If no filename provided will display in an imagemagick window.
