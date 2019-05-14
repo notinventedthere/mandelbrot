@@ -9,9 +9,9 @@ class Fractal
     @fractal = fractal
   end
 
-  def normalize_point(x, y, width, height)
-    x = (x - width / 1.6) * 4.0 / width
-    y = (y - height / 2.0) * 4.0 / height
+  def normalize_point(x, y, width, height, scale=1)
+    x = (x - width / 1.6) * 4.0 / scale / width
+    y = (y - height / 2.0) * 4.0 / scale / height
     return x, y
   end
 

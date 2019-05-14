@@ -33,7 +33,8 @@ FRACTALS = {
 
 options = {
   iterations: 50,
-  fractal: :mandelbrot
+  fractal: :mandelbrot,
+  scale: 1
 }
 
 OptionParser.new do |opts|
@@ -55,6 +56,10 @@ OptionParser.new do |opts|
     options[:fractal] = fractal
   end
 
+  opts.on("-s", "--scale N", Float, "Zoom level") do |scale|
+    options[:scale] = scale
+  end
+
   opts.on("-h", "--help", "Prints this help") do
     puts opts
     exit
@@ -67,12 +72,12 @@ if ARGV[0] && ARGV[1]
   if [:mandelbrot, :burning_ship].member? options[:fractal]
     p = Plot.new( -> (x, y) do
       fractal.color_at(0,
-                       Complex(*fractal.normalize_point(x, y, width, height)),
+                       Complex(*fractal.normalize_point(x, y, width, height, options[:scale])),
                        options[:iterations])
     end)
   else
     p = Plot.new( -> (x, y) do
-      fractal.color_at(Complex(*fractal.normalize_point(x, y, width, height)),
+      fractal.color_at(Complex(*fractal.normalize_point(x, y, width, height, options[:scale])),
                        2, options[:iterations])
     end)
   end
