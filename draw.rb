@@ -1,6 +1,6 @@
 require 'rmagick'
 include Magick
-require_relative 'mandelbrot'
+require_relative 'fractal'
 require 'optparse'
 
 class Plot
@@ -25,18 +25,19 @@ class Plot
   end
 end
 
-def plot_mandelbrot(width, height, iterations)
-  p = Plot.new(lambda do |x,y|
-    Mandelbrot.color_at(
-      *Mandelbrot.normalize_point(x, y, width, height), iterations
-    )
-  end)
-  p.generate(width, height)
-  return p
-end
+FRACTALS = {
+  mandelbrot: Fractal::MANDELBROT,
+  burning_ship: Fractal::BURNING_SHIP,
+  sin_z: Fractal::SIN_Z
+}
 
-options = {}
+options = {
+  iterations: 50,
+  fractal: :mandelbrot
+}
+
 OptionParser.new do |opts|
+  opts.accept(Symbol) { |string| string.to_sym }
   opts.banner = "Usage: draw.rb width height [options]"
 
   opts.on("-i", "--iterations N", Integer,
@@ -45,9 +46,13 @@ OptionParser.new do |opts|
   end
 
   opts.on("-f", "--filename FILENAME",
-          "Filename to save image to.\
-          If none provided will display in window.") do |filename|
+          "Filename to save image to \
+          If none provided will display in window") do |filename|
     options[:filename] = filename
+  end
+
+  opts.on("-t", "--type FRACTAL", Symbol, "Type of fractal to draw") do |fractal|
+    options[:fractal] = fractal
   end
 
   opts.on("-h", "--help", "Prints this help") do
@@ -56,10 +61,22 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-options[:iterations] ||= 50
 if ARGV[0] && ARGV[1]
   width, height = ARGV.take(2).map(&:to_i)
-  p = plot_mandelbrot(width, height, options[:iterations])
+  fractal = Fractal.new(FRACTALS[options[:fractal]])
+  if [:mandelbrot, :burning_ship].member? options[:fractal]
+    p = Plot.new( -> (x, y) do
+      fractal.color_at(0,
+                       Complex(*fractal.normalize_point(x, y, width, height)),
+                       options[:iterations])
+    end)
+  else
+    p = Plot.new( -> (x, y) do
+      fractal.color_at(Complex(*fractal.normalize_point(x, y, width, height)),
+                       2, options[:iterations])
+    end)
+  end
+  p.generate(width, height)
 
   if options[:filename]
     p.image.write(options[:filename])
