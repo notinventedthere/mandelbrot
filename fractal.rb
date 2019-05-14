@@ -1,17 +1,12 @@
 require 'cmath'
 
 class Fractal
-  FRACTALS = {
-    mandelbrot: -> (z, c) { z ** 2 + c },
-    burning_ship: -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c },
-    sin_z: -> (z, c) { c * CMath.sin(z) }
-  }
-
-  def initialize(fractal)
-    @fractal = fractal
+  def initialize(start_values, formula)
+    @start_values = start_values
+    @formula = formula
   end
 
-  def normalize_point(x, y, width, height, scale=1)
+  def self.normalize_point(x, y, width, height, scale=1)
     x = (x - width / 1.6) * 4.0 / scale / width
     y = (y - height / 2.0) * 4.0 / scale / height
     return x, y
@@ -27,7 +22,10 @@ class Fractal
     end
   end
 
-  def color_at(z, c, max)
+  def color_at(point, max)
+    z, c = @start_values
+    z = point if z == :point
+    c = point if c == :point
     pow = 1.0
     (0..max-1).each do |i|
       r2 = z.real ** 2 + z.imaginary ** 2
@@ -35,9 +33,23 @@ class Fractal
         v = Math.log(r2) / pow
         return colors1(v, 0.3)
       end
-      z = @fractal.(z, c)
+      z = @formula.(z, c)
       pow = pow * 2
     end
     "black"
   end
 end
+
+FRACTALS = {
+  ## name: [start_values, function to iterate]
+  mandelbrot: [[0, :point],
+               -> (z, c) { z ** 2 + c }],
+  burning_ship: [[0, :point],
+                 -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c }],
+  julia_1: [[:point, 0.355+0.355i],
+            -> (z, c) { z ** 2 + c }],
+  sin_z: [[:point, 2],
+          -> (z, c) { c * CMath.sin(z) }],
+  cos_z: [[:point, 2],
+          -> (z, c) { c * CMath.cos(z) }]
+}

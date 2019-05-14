@@ -15,9 +15,7 @@ class Plot
     (0..height-1).each do |y|
       (0..width-1).each do |x|
         p = Pixel.from_color(@color_method.(x, y))
-        pixels.push(p.red)
-        pixels.push(p.green)
-        pixels.push(p.blue)
+        pixels.push(p.red, p.green, p.blue)
       end
     end
 
@@ -46,7 +44,8 @@ OptionParser.new do |opts|
     options[:filename] = filename
   end
 
-  opts.on("-t", "--type FRACTAL", Symbol, "Type of fractal to draw") do |fractal|
+  opts.on("-t", "--type FRACTAL", Symbol,
+          "Type of fractal to draw. Available: " + FRACTALS.keys.join(', ')) do |fractal|
     options[:fractal] = fractal
   end
 
@@ -62,19 +61,13 @@ end.parse!
 
 if ARGV[0] && ARGV[1]
   width, height = ARGV.take(2).map(&:to_i)
-  fractal = Fractal.new(Fractal::FRACTALS[options[:fractal]])
-  if [:mandelbrot, :burning_ship].member? options[:fractal]
-    p = Plot.new( -> (x, y) do
-      fractal.color_at(0,
-                       Complex(*fractal.normalize_point(x, y, width, height, options[:scale])),
-                       options[:iterations])
-    end)
-  else
-    p = Plot.new( -> (x, y) do
-      fractal.color_at(Complex(*fractal.normalize_point(x, y, width, height, options[:scale])),
-                       2, options[:iterations])
-    end)
-  end
+  fractal = Fractal.new(*FRACTALS[options[:fractal]])
+  p = Plot.new(
+    -> (x, y) do
+      normalized = Fractal.normalize_point(x, y, width, height, options[:scale])
+      fractal.color_at(Complex(*normalized), options[:iterations])
+    end
+  )
   p.generate(width, height)
 
   if options[:filename]
