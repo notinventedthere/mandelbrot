@@ -1,9 +1,11 @@
 require 'cmath'
 
 class Fractal
-  MANDELBROT = -> (z, c) { z ** 2 + c }
-  BURNING_SHIP = -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c }
-  SIN_Z = -> (z, c) { c * CMath.sin(z) }
+  FRACTALS = {
+    mandelbrot: -> (z, c) { z ** 2 + c },
+    burning_ship: -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c },
+    sin_z: -> (z, c) { c * CMath.sin(z) }
+  }
 
   def initialize(fractal)
     @fractal = fractal

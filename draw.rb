@@ -25,12 +25,6 @@ class Plot
   end
 end
 
-FRACTALS = {
-  mandelbrot: Fractal::MANDELBROT,
-  burning_ship: Fractal::BURNING_SHIP,
-  sin_z: Fractal::SIN_Z
-}
-
 options = {
   iterations: 50,
   fractal: :mandelbrot,
@@ -68,7 +62,7 @@ end.parse!
 
 if ARGV[0] && ARGV[1]
   width, height = ARGV.take(2).map(&:to_i)
-  fractal = Fractal.new(FRACTALS[options[:fractal]])
+  fractal = Fractal.new(Fractal::FRACTALS[options[:fractal]])
   if [:mandelbrot, :burning_ship].member? options[:fractal]
     p = Plot.new( -> (x, y) do
       fractal.color_at(0,
