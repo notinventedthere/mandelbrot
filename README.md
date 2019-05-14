@@ -1,6 +1,6 @@
 # Mandelbrot Renderer
 
-Now with other fractals.
+Renders a Mandelbrot image https://en.wikipedia.org/wiki/Mandelbrot_set. Other fractals available.
 
 ![rendered with 50 iterations](https://github.com/notinventedthere/mandelbrot/raw/master/mandel.png
 "Rendered with 50 iterations")
