@@ -15,6 +15,4 @@ Install rmagick with `gem install rmagick`. Requires imagemagick to be installed
 ## Usage
 `ruby draw.rb width height [options]`
 
-Pass `--help` for options
-
-Available fractals for -t option: mandelbrot, burning_ship, sin_z
+Pass `--help` for options and available fractals
