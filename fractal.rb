@@ -36,18 +36,12 @@ end
 
 FRACTALS = {
   ## name: [start_values, function to iterate]
-  mandelbrot: [[0, :point],
-               -> (z, c) { z ** 2 + c }],
-  burning_ship: [[0, :point],
-                 -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c }],
-  julia_1: [[:point, 0.355+0.355i],
-            -> (z, c) { z ** 2 + c }],
-  julia_2: [[:point, 0.37+0.1i],
-            -> (z, c) { z ** 2 + c }],
-  julia_3: [[:point, -0.54+0.54i],
-            -> (z, c) { z ** 2 + c }],
-  sin_z: [[:point, 2],
-          -> (z, c) { c * CMath.sin(z) }],
-  cos_z: [[:point, 2],
-          -> (z, c) { c * CMath.cos(z) }]
+  mandelbrot: Fractal.new([0, :point], -> (z, c) { z ** 2 + c }),
+  burning_ship: 
+    Fractal.new([0, :point], -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c }),
+  julia_1: Fractal.new([:point, 0.355+0.355i], -> (z, c) { z ** 2 + c }),
+  julia_2: Fractal.new([:point, 0.37+0.1i], -> (z, c) { z ** 2 + c }),
+  julia_3: Fractal.new([:point, -0.54+0.54i], -> (z, c) { z ** 2 + c }),
+  sin_z: Fractal.new([:point, 2], -> (z, c) { c * CMath.sin(z) }),
+  cos_z: Fractal.new([:point, 2], -> (z, c) { c * CMath.cos(z) })
 }

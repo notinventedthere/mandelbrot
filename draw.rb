@@ -71,12 +71,11 @@ end.parse!
 
 if ARGV[0] && ARGV[1]
   width, height = ARGV.take(2).map(&:to_i)
-  fractal = Fractal.new(*FRACTALS[options[:fractal]])
   p = Plot.new(
     -> (x, y) do
       x, y = scale_point(x, y, width, height, options[:scale])
       x, y = [x + options[:position].first, y + options[:position].last]
-      fractal.color_at(x, y, options[:iterations])
+      FRACTALS[options[:fractal]].color_at(x, y, options[:iterations])
     end
   )
   p.generate(width, height)
