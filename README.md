@@ -10,8 +10,8 @@ Other fractals available.
 Example above rendered with `ruby draw.rb 800 800 -i 50`
 
 ## TODO
-- position option
 - more detailed coloring
+- optimize
 
 ## Installation
 Install rmagick with `gem install rmagick`. Requires imagemagick to be installed.
