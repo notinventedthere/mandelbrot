@@ -6,12 +6,6 @@ class Fractal
     @formula = formula
   end
 
-  def self.normalize_point(x, y, width, height, scale=1)
-    x = (x - width / 1.6) * 4.0 / scale / width
-    y = (y - height / 2.0) * 4.0 / scale / height
-    return x, y
-  end
-
   def colors1(v, limit)
     if v > limit # not close enough to M
       "black"
@@ -22,10 +16,10 @@ class Fractal
     end
   end
 
-  def color_at(point, max)
+  def color_at(x, y, max)
     z, c = @start_values
-    z = point if z == :point
-    c = point if c == :point
+    z = Complex(x, y) if z == :point
+    c = Complex(x, y) if c == :point
     pow = 1.0
     (0..max-1).each do |i|
       r2 = z.real ** 2 + z.imaginary ** 2
@@ -47,6 +41,10 @@ FRACTALS = {
   burning_ship: [[0, :point],
                  -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c }],
   julia_1: [[:point, 0.355+0.355i],
+            -> (z, c) { z ** 2 + c }],
+  julia_2: [[:point, 0.37+0.1i],
+            -> (z, c) { z ** 2 + c }],
+  julia_3: [[:point, -0.54+0.54i],
             -> (z, c) { z ** 2 + c }],
   sin_z: [[:point, 2],
           -> (z, c) { c * CMath.sin(z) }],

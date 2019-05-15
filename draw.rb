@@ -23,10 +23,17 @@ class Plot
   end
 end
 
+def scale_point(x, y, width, height, scale)
+  x = x * scale / width
+  y = y * scale / height
+  return x, y
+end
+
 options = {
   iterations: 50,
   fractal: :mandelbrot,
-  scale: 1
+  scale: 4.0,
+  position: [-2.4, -2.0]
 }
 
 OptionParser.new do |opts|
@@ -50,8 +57,11 @@ OptionParser.new do |opts|
   end
 
   opts.on("-s", "--scale N", Float, "Zoom level") do |scale|
-    options[:scale] = scale
+    options[:scale] *= scale
   end
+
+  opts.on("-x N", Float, "x position") { |x| options[:position][0] += x }
+  opts.on("-y N", Float, "y position") { |y| options[:position][1]  += y }
 
   opts.on("-h", "--help", "Prints this help") do
     puts opts
@@ -64,8 +74,9 @@ if ARGV[0] && ARGV[1]
   fractal = Fractal.new(*FRACTALS[options[:fractal]])
   p = Plot.new(
     -> (x, y) do
-      normalized = Fractal.normalize_point(x, y, width, height, options[:scale])
-      fractal.color_at(Complex(*normalized), options[:iterations])
+      x, y = scale_point(x, y, width, height, options[:scale])
+      x, y = [x + options[:position].first, y + options[:position].last]
+      fractal.color_at(x, y, options[:iterations])
     end
   )
   p.generate(width, height)
