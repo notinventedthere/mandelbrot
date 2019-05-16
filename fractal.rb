@@ -10,18 +10,15 @@ class Fractal
 
   def color_at(x, y, max)
     z, c = new_start_values(x, y)
-    r, g, b = color_from_palette(@coloring_method.(z, c, max, @formula))
-                .map { |c| c.to_s.rjust(3, "0") }
-    "##{r}#{g}#{b}"
+    color_from_palette(@coloring_method.(z, c, max, @formula))
   end
 
-  private
 
   def color_from_palette(index)
-    len = @palette.length
-     i = index * len
-    while i > len - 1
-      i -= len - 1
+    len = @palette.length - 1
+    i = index * len
+    while i > len
+      i -= len
     end
     floor = @palette[i.floor]
     ceiling = @palette[i.ceil]
@@ -34,14 +31,15 @@ class Fractal
 end
 
 module Coloring
-  def self.escape_time(k=2.5, u0=0)
+  ## All methods should return a color index between 0 and 1
+  def self.escape_time
     -> (z, c, max, formula) do
       iterations = 0
       until z.real ** 2 + z.imaginary ** 2 > 10 || iterations == max
         z = formula.(z, c)
         iterations += 1
       end
-      k * (iterations / 20.0 - u0)
+      (1.0 / max) * iterations
     end
   end
 end
@@ -51,7 +49,7 @@ COLORING_METHODS = {
 }
 
 PALETTES = {
-  greyscale: [[0,0,0],[255,255,255],[0,0,0]]
+  greyscale: [[65535,65535,65535],[0,0,0],[65535,65535,65535]]
 }
 
 FRACTALS = {

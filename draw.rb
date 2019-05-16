@@ -14,8 +14,7 @@ class Plot
     pixels = []
     (0..height-1).each do |y|
       (0..width-1).each do |x|
-        pixel = Pixel.from_color(@shader.(x,y))
-        pixels.push(pixel.red, pixel.green, pixel.blue)
+        pixels.push(*@shader.(x,y))
       end
     end
 
