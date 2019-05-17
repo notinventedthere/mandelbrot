@@ -42,14 +42,32 @@ module Coloring
       (1.0 / max) * iterations
     end
   end
+
+  def self.smooth
+    -> (z, c, max, formula) do
+      pow = 1.0
+      (0..max).each do |i|
+        r2 = z.real ** 2 + z.imaginary ** 2
+        if r2 > 1000000
+          v = Math.log(r2) / pow
+          return v
+        end
+        z = formula.(z, c)
+        pow *= 2
+      end
+      0
+    end
+  end
 end
 
 COLORING_METHODS = {
-  escape_time: Coloring.escape_time
+  escape_time: Coloring.escape_time,
+  smooth: Coloring.smooth
 }
 
 PALETTES = {
-  greyscale: [[65535,65535,65535],[0,0,0],[65535,65535,65535]]
+  greyscale: [[65535,65535,65535],[0,0,0],[65535,65535,65535]],
+  smooth_greyscale: [[0,0,0],[65535,65535,65535],[40000,40000,40000],*[[0,0,0]].cycle(5)]
 }
 
 FRACTALS = {
