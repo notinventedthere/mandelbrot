@@ -1,17 +1,15 @@
 require 'cmath'
 
 class Fractal
-  def initialize(start_values, formula, coloring_method, palette)
+  def initialize(start_values, formula, palette)
     @start_values = start_values
     @formula = formula
-    @coloring_method = coloring_method
     @palette = palette
   end
 
   def color_at(x, y, max)
     z, c = new_start_values(x, y)
-    r, g, b = @palette.((@coloring_method.(z, c, max, @formula))).map { |c| c.to_s.rjust(3, "0") }
-    "##{r}#{g}#{b}"
+    @palette.(z, c, max, @formula)
   end
 
   private
@@ -21,7 +19,7 @@ class Fractal
   end
 end
 
-module Coloring
+module FractalMethod
   ## Methods which return a float index
   def self.escape_time
     -> (z, c, max, formula) do
@@ -39,10 +37,7 @@ module Coloring
       pow = 1.0
       (0..max).each do |i|
         r2 = z.real ** 2 + z.imaginary ** 2
-        if r2 > 1000000
-          v = Math.log(r2) / pow
-          return v
-        end
+        return Math.log(r2) / pow if r2 > 1000000
         z = formula.(z, c)
         pow *= 2
       end
@@ -65,6 +60,7 @@ module Palette
     self.make_looped!(control_points)
     -> (index) do
       index %= 1
+      return [0,0,0] if index.class == Float && index.nan?
       (cp_right, color_right), i_right = control_points.each_with_index.find { |(cp, color), i| index <= cp }
       cp_left, color_left = control_points[i_right-1]
 
@@ -88,14 +84,10 @@ module Palette
   end
 end
 
-COLORING_METHODS = {
-  escape_time: Coloring.escape_time,
-  smooth: Coloring.smooth
-}
-
 PALETTES = {
-  greyscale: Palette.from_colors([[255,255,255],[0,0,0],[255,255,255]]),
-  colorful: Palette.from_control_points(
+  greyscale: FractalMethod.escape_time\
+              >> Palette.from_colors([[255,255,255],[0,0,0],[255,255,255]]),
+  colorful: FractalMethod.escape_time >> Palette.from_control_points(
     [ [0,       [0, 7, 100]],
       [0.16,    [32,  107, 203]],
       [0.42,    [237, 255, 255]],
@@ -103,7 +95,19 @@ PALETTES = {
       [0.8575,  [0,   2,   0]]
     ]
   ),
-  testing: Palette.from_control_points([[0, [0, 7, 100]], [0.005, [32, 107, 203]],[1, [0, 0, 0]]])
+  colorful_smooth: FractalMethod.smooth >> Palette.from_control_points(
+    [ [0,       [0, 7, 100]],
+      [0.00001,    [237, 255, 255]],
+      [0.0001,    [32,  107, 203]],
+      [0.00015,    [237, 255, 255]],
+      [0.0025,  [0, 192, 199]],
+      [0.005,  [0,   7,   100]],
+      [1,  [0,   2,   0]],
+    ]
+  ),
+  testing: FractalMethod.smooth >> Palette.from_control_points(
+    [[0, [0, 7, 100]], [0.005, [32, 107, 203]],[1, [0, 0, 0]]]
+  )
 }
 
 FRACTALS = {

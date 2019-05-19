@@ -7,8 +7,7 @@ def plot(width, height)
   pixels = []
   (0..height-1).each do |y|
     (0..width-1).each do |x|
-      pixel = Pixel.from_color(yield(x,y))
-      pixels.push(pixel.red * 6, pixel.green * 6, pixel.blue * 6)
+      pixels.push(*yield(x,y).map { |c| c * 257 })
     end
   end
 
@@ -24,8 +23,7 @@ end
 $options = {
   iterations: 50,
   fractal: :mandelbrot,
-  method: :escape_time,
-  palette: :colorful,
+  palette: :colorful_smooth,
   scale: 4.0,
   position: [-2.4, -2.0]
 }
@@ -50,11 +48,6 @@ OptionParser.new do |opts|
     $options[:fractal] = fractal
   end
 
-  opts.on("-c", "--coloring-method METHOD", Symbol,
-          "Which coloring algorithm to use. Available: " + COLORING_METHODS.keys.join(', ')) do |method|
-    $options[:method] = method
-  end
-
   opts.on("-p", "--palette COLORS", Symbol,
           "Which color palette to use. Available: " + PALETTES.keys.join(', ')) do |palette|
     $options[:palette] = palette
@@ -76,7 +69,6 @@ end.parse!
 def run(width, height, options)
   fractal = Fractal.new(
     *FRACTALS[options[:fractal]],
-    COLORING_METHODS[options[:method]],
     PALETTES[options[:palette]]
   )
   plot(width, height) do |x, y|
