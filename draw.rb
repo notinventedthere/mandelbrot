@@ -25,7 +25,7 @@ $options = {
   iterations: 50,
   fractal: :mandelbrot,
   method: :escape_time,
-  palette: :greyscale,
+  palette: :colorful,
   scale: 4.0,
   position: [-2.4, -2.0]
 }

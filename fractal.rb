@@ -52,7 +52,8 @@ module Coloring
 end
 
 module Palette
-  ## Methods which take a float index and produce a color
+  # Methods which return a lambda that
+  # takes a float index and produces a color
   def self.from_colors(colors)
     len = colors.length - 1
     control_points = (0..len).to_a.map { |i| i * (1.0 / len) }
@@ -61,10 +62,7 @@ module Palette
 
   def self.from_control_points(control_points)
     # loop palette
-    cp_first, color_first = control_points.first
-    cp_last, color_last = control_points.last
-    control_points.push([1.0 + cp_first, color_first])
-    control_points.unshift([0.0 - cp_last, color_last])
+    self.make_looped!(control_points)
     -> (index) do
       index %= 1
       (cp_right, color_right), i_right = control_points.each_with_index.find { |(cp, color), i| index <= cp }
@@ -82,6 +80,12 @@ module Palette
     y1 + ((y2 - y1) / (x2 - x1)) * (x - x1)
   end
 
+  def self.make_looped!(control_points)
+    cp_first, color_first = control_points.first
+    cp_last, color_last = control_points.last
+    control_points.push([1.0 + cp_first, color_first])
+    control_points.unshift([-(1.0 - cp_last), color_last])
+  end
 end
 
 COLORING_METHODS = {
@@ -91,14 +95,15 @@ COLORING_METHODS = {
 
 PALETTES = {
   greyscale: Palette.from_colors([[255,255,255],[0,0,0],[255,255,255]]),
-  ultra_smooth: Palette.from_control_points(
+  colorful: Palette.from_control_points(
     [ [0,       [0, 7, 100]],
       [0.16,    [32,  107, 203]],
       [0.42,    [237, 255, 255]],
       [0.6425,  [255, 170, 0]],
       [0.8575,  [0,   2,   0]]
     ]
-  )
+  ),
+  testing: Palette.from_control_points([[0, [0, 7, 100]], [0.005, [32, 107, 203]],[1, [0, 0, 0]]])
 }
 
 FRACTALS = {
