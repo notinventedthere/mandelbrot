@@ -25,7 +25,7 @@ downscaled
 
 Rendered with `ruby draw.rb 1600 1600 -p colorful -i 200 -t julia_3` and
 downscaled
-![Julia fractal #3, colorful](https://github.com/notinventedthere/mandelbrot/raw/master/examples/julia_2_colorful.png)
+![Julia fractal #3, colorful](https://github.com/notinventedthere/mandelbrot/raw/master/examples/julia_3_colorful.png)
 
 ---
 
