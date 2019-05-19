@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'cmath'
 
 class Fractal
@@ -9,7 +11,7 @@ class Fractal
 
   def color_at(x, y, max)
     z, c = new_start_values(x, y)
-    @palette.(z, c, max, @formula)
+    @palette.call(z, c, max, @formula)
   end
 
   private
@@ -22,10 +24,10 @@ end
 module FractalMethod
   ## Methods which return a float index
   def self.escape_time
-    -> (z, c, max, formula) do
+    lambda do |z, c, max, formula|
       iterations = 0
-      until z.real ** 2 + z.imaginary ** 2 > 10 || iterations == max
-        z = formula.(z, c)
+      until z.real**2 + z.imaginary**2 > 10 || iterations == max
+        z = formula.call(z, c)
         iterations += 1
       end
       (1.0 / max) * iterations
@@ -33,12 +35,13 @@ module FractalMethod
   end
 
   def self.smooth
-    -> (z, c, max, formula) do
+    lambda do |z, c, max, formula|
       pow = 1.0
-      (0..max).each do |i|
-        r2 = z.real ** 2 + z.imaginary ** 2
-        return Math.log(r2) / pow if r2 > 1000000
-        z = formula.(z, c)
+      (0..max).each do |_i|
+        r2 = z.real**2 + z.imaginary**2
+        return Math.log(r2) / pow if r2 > 1_000_000
+
+        z = formula.call(z, c)
         pow *= 2
       end
       0
@@ -52,20 +55,21 @@ module Palette
   def self.from_colors(colors)
     len = colors.length - 1
     control_points = (0..len).to_a.map { |i| i * (1.0 / len) }
-    self.from_control_points(control_points.zip(colors))
+    from_control_points(control_points.zip(colors))
   end
 
   def self.from_control_points(control_points)
     # loop palette
-    self.make_looped!(control_points)
-    -> (index) do
+    make_looped!(control_points)
+    lambda do |index|
       index %= 1
-      return [0,0,0] if index.class == Float && index.nan?
-      (cp_right, color_right), i_right = control_points.each_with_index.find { |(cp, color), i| index <= cp }
-      cp_left, color_left = control_points[i_right-1]
+      return [0, 0, 0] if index.class == Float && index.nan?
+
+      (cp_right, color_right), i_right = control_points.each_with_index.find { |(cp, _color), _i| index <= cp }
+      cp_left, color_left = control_points[i_right - 1]
 
       color_left.zip(color_right).map do |l, r|
-        self.interpolate(index, cp_left, l, cp_right, r).round
+        interpolate(index, cp_left, l, cp_right, r).round
       end
     end
   end
@@ -86,37 +90,35 @@ end
 
 PALETTES = {
   greyscale: FractalMethod.escape_time\
-              >> Palette.from_colors([[255,255,255],[0,0,0],[255,255,255]]),
+              >> Palette.from_colors([[255, 255, 255], [0, 0, 0], [255, 255, 255]]),
   colorful: FractalMethod.escape_time >> Palette.from_control_points(
-    [ [0,       [0, 7, 100]],
-      [0.16,    [32,  107, 203]],
-      [0.42,    [237, 255, 255]],
-      [0.6425,  [255, 170, 0]],
-      [0.8575,  [0,   2,   0]]
-    ]
+    [[0, [0, 7, 100]],
+     [0.16,    [32,  107, 203]],
+     [0.42,    [237, 255, 255]],
+     [0.6425,  [255, 170, 0]],
+     [0.8575,  [0,   2,   0]]]
   ),
   colorful_smooth: FractalMethod.smooth >> Palette.from_control_points(
-    [ [0,       [0, 7, 100]],
-      [0.00001,    [237, 255, 255]],
-      [0.0001,    [32,  107, 203]],
-      [0.00015,    [237, 255, 255]],
-      [0.0025,  [0, 192, 199]],
-      [0.005,  [0,   7,   100]],
-      [1,  [0,   2,   0]],
-    ]
+    [[0, [0, 7, 100]],
+     [0.00001, [237, 255, 255]],
+     [0.0001, [32, 107, 203]],
+     [0.00015, [237, 255, 255]],
+     [0.0025, [0, 192, 199]],
+     [0.005, [0, 7, 100]],
+     [1, [0, 2, 0]]]
   ),
   testing: FractalMethod.smooth >> Palette.from_control_points(
-    [[0, [0, 7, 100]], [0.005, [32, 107, 203]],[1, [0, 0, 0]]]
+    [[0, [0, 7, 100]], [0.005, [32, 107, 203]], [1, [0, 0, 0]]]
   )
-}
+}.freeze
 
 FRACTALS = {
-  mandelbrot: [[0, :point], -> (z, c) { z ** 2 + c }],
-  burning_ship: 
-    [[0, :point], -> (z, c) { z.real ** 2 - z.imaginary ** 2 - c }],
-  julia_1: [[:point, 0.355+0.355i], -> (z, c) { z ** 2 + c }],
-  julia_2: [[:point, 0.37+0.1i], -> (z, c) { z ** 2 + c }],
-  julia_3: [[:point, -0.54+0.54i], -> (z, c) { z ** 2 + c }],
-  sin_z: [[:point, 2], -> (z, c) { c * CMath.sin(z) }],
-  cos_z: [[:point, 2], -> (z, c) { c * CMath.cos(z) }]
-}
+  mandelbrot: [[0, :point], ->(z, c) { z**2 + c }],
+  burning_ship:
+    [[0, :point], ->(z, c) { z.real**2 - z.imaginary**2 - c }],
+  julia_1: [[:point, 0.355 + 0.355i], ->(z, c) { z**2 + c }],
+  julia_2: [[:point, 0.37 + 0.1i], ->(z, c) { z**2 + c }],
+  julia_3: [[:point, -0.54 + 0.54i], ->(z, c) { z**2 + c }],
+  sin_z: [[:point, 2], ->(z, c) { c * CMath.sin(z) }],
+  cos_z: [[:point, 2], ->(z, c) { c * CMath.cos(z) }]
+}.freeze

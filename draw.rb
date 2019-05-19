@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rmagick'
 include Magick
 require_relative 'fractal'
@@ -5,19 +7,19 @@ require 'optparse'
 
 def plot(width, height)
   pixels = []
-  (0..height-1).each do |y|
-    (0..width-1).each do |x|
-      pixels.push(*yield(x,y).map { |c| c * 257 })
+  (0..height - 1).each do |y|
+    (0..width - 1).each do |x|
+      pixels.push(*yield(x, y).map { |c| c * 257 })
     end
   end
 
-  Image.constitute(width, height, "RGB", pixels)
+  Image.constitute(width, height, 'RGB', pixels)
 end
 
 def scale_point(x, y, width, height, scale)
   x = x * scale / width
   y = y * scale / height
-  return x, y
+  [x, y]
 end
 
 $options = {
@@ -29,38 +31,38 @@ $options = {
 }
 
 OptionParser.new do |opts|
-  opts.accept(Symbol) { |string| string.to_sym }
-  opts.banner = "Usage: draw.rb width height [$options]"
+  opts.accept(Symbol, &:to_sym)
+  opts.banner = 'Usage: draw.rb width height [$options]'
 
-  opts.on("-i", "--iterations N", Integer,
-          "Number of iterations for each pixel. Default: 50") do |n|
+  opts.on('-i', '--iterations N', Integer,
+          'Number of iterations for each pixel. Default: 50') do |n|
     $options[:iterations] = n
   end
 
-  opts.on("-f", "--filename FILENAME",
+  opts.on('-f', '--filename FILENAME',
           "Filename to save image to \
           If none provided will display in window") do |filename|
     $options[:filename] = filename
   end
 
-  opts.on("-t", "--type FRACTAL", Symbol,
-          "Type of fractal to draw. Available: " + FRACTALS.keys.join(', ')) do |fractal|
+  opts.on('-t', '--type FRACTAL', Symbol,
+          'Type of fractal to draw. Available: ' + FRACTALS.keys.join(', ')) do |fractal|
     $options[:fractal] = fractal
   end
 
-  opts.on("-p", "--palette COLORS", Symbol,
-          "Which color palette to use. Available: " + PALETTES.keys.join(', ')) do |palette|
+  opts.on('-p', '--palette COLORS', Symbol,
+          'Which color palette to use. Available: ' + PALETTES.keys.join(', ')) do |palette|
     $options[:palette] = palette
   end
 
-  opts.on("-s", "--scale N", Float, "Zoom level") do |scale|
+  opts.on('-s', '--scale N', Float, 'Zoom level') do |scale|
     $options[:scale] *= scale
   end
 
-  opts.on("-x N", Float, "x position") { |x| $options[:position][0] += x }
-  opts.on("-y N", Float, "y position") { |y| $options[:position][1] += y }
+  opts.on('-x N', Float, 'x position') { |x| $options[:position][0] += x }
+  opts.on('-y N', Float, 'y position') { |y| $options[:position][1] += y }
 
-  opts.on("-h", "--help", "Prints this help") do
+  opts.on('-h', '--help', 'Prints this help') do
     puts opts
     exit
   end
@@ -73,7 +75,8 @@ def run(width, height, options)
   )
   plot(width, height) do |x, y|
     x, y = scale_point(x, y, width, height, options[:scale])
-    x, y = [x + options[:position].first, y + options[:position].last]
+    x += options[:position].first
+    y += options[:position].last
     fractal.color_at(x, y, options[:iterations])
   end
 end
@@ -87,5 +90,5 @@ if ARGV[0] && ARGV[1]
     image.display
   end
 else
-  puts "width and height required"
+  puts 'width and height required'
 end
