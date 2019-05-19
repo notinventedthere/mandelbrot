@@ -60,17 +60,15 @@ module Palette
   end
 
   def self.from_control_points(control_points)
+    # loop palette
+    cp_first, color_first = control_points.first
+    cp_last, color_last = control_points.last
+    control_points.push([1.0 + cp_first, color_first])
+    control_points.unshift([0.0 - cp_last, color_last])
     -> (index) do
       index %= 1
       (cp_right, color_right), i_right = control_points.each_with_index.find { |(cp, color), i| index <= cp }
-      if cp_right.zero?
-        return color_right
-      elsif i_right.zero?
-        cp_left, color_left = control_points.last
-        cp_right += cp_left
-      else
-        cp_left, color_left = control_points[i_right-1]
-      end
+      cp_left, color_left = control_points[i_right-1]
 
       color_left.zip(color_right).map do |l, r|
         self.interpolate(index, cp_left, l, cp_right, r).round
