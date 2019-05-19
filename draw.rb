@@ -8,7 +8,7 @@ def plot(width, height)
   (0..height-1).each do |y|
     (0..width-1).each do |x|
       pixel = Pixel.from_color(yield(x,y))
-      pixels.push(pixel.red * 257, pixel.green * 257, pixel.blue * 257)
+      pixels.push(pixel.red * 6, pixel.green * 6, pixel.blue * 6)
     end
   end
 
