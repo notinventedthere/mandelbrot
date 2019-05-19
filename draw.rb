@@ -3,23 +3,16 @@ include Magick
 require_relative 'fractal'
 require 'optparse'
 
-class Plot
-  attr_reader :image
-
-  def initialize(shader)
-    @shader = shader
-  end
-
-  def generate(width, height)
-    pixels = []
-    (0..height-1).each do |y|
-      (0..width-1).each do |x|
-        pixels.push(*@shader.(x,y))
-      end
+def plot(width, height)
+  pixels = []
+  (0..height-1).each do |y|
+    (0..width-1).each do |x|
+      pixel = Pixel.from_color(yield(x,y))
+      pixels.push(pixel.red * 257, pixel.green * 257, pixel.blue * 257)
     end
-
-    @image = Image.constitute(width, height, "RGB", pixels)
   end
+
+  Image.constitute(width, height, "RGB", pixels)
 end
 
 def scale_point(x, y, width, height, scale)
@@ -86,24 +79,20 @@ def run(width, height, options)
     COLORING_METHODS[options[:method]],
     PALETTES[options[:palette]]
   )
-  plot = Plot.new(
-    -> (x, y) do
-      x, y = scale_point(x, y, width, height, options[:scale])
-      x, y = [x + options[:position].first, y + options[:position].last]
-      fractal.color_at(x, y, options[:iterations])
-    end
-  )
-  plot.generate(width, height)
-  plot
+  plot(width, height) do |x, y|
+    x, y = scale_point(x, y, width, height, options[:scale])
+    x, y = [x + options[:position].first, y + options[:position].last]
+    fractal.color_at(x, y, options[:iterations])
+  end
 end
 
 if ARGV[0] && ARGV[1]
   width, height = ARGV.take(2).map(&:to_i)
-  plot = run(width, height, $options)
+  image = run(width, height, $options)
   if $options[:filename]
-    plot.image.write($options[:filename])
+    image.write($options[:filename])
   else
-    plot.image.display
+    image.display
   end
 else
   puts "width and height required"
